@@ -4,18 +4,23 @@ import {
   AutoProcessor,
   RawImage,
   PreTrainedModel,
-  Processor
+  Processor,
+  Tensor,
 } from "@huggingface/transformers";
 
-// Initialize different model configurations
-const WEBGPU_MODEL_ID = "Xenova/modnet";
-const FALLBACK_MODEL_ID = "briaai/RMBG-1.4";
+/** MIT — commercial use OK (ONNX export of ZhengPeng7/BiRefNet). */
+export const DEFAULT_MODEL_ID = "onnx-community/BiRefNet_512x512-ONNX";
+
+/** Apache-2.0 — optional WebGPU matting model. */
+export const WEBGPU_MODEL_ID = "Xenova/modnet";
+
+export type ModelId = typeof DEFAULT_MODEL_ID | typeof WEBGPU_MODEL_ID;
 
 interface ModelState {
   model: PreTrainedModel | null;
   processor: Processor | null;
   isWebGPUSupported: boolean;
-  currentModelId: string;
+  currentModelId: ModelId;
   isIOS: boolean;
 }
 
@@ -25,60 +30,73 @@ interface ModelInfo {
   isIOS: boolean;
 }
 
-// iOS detection
-const isIOS = () => {
-  return [
-    'iPad Simulator',
-    'iPhone Simulator',
-    'iPod Simulator',
-    'iPad',
-    'iPhone',
-    'iPod'
-  ].includes(navigator.platform)
-  || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-};
+const isIOS = () =>
+  [
+    "iPad Simulator",
+    "iPhone Simulator",
+    "iPod Simulator",
+    "iPad",
+    "iPhone",
+    "iPod",
+  ].includes(navigator.platform) ||
+  (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 
 const state: ModelState = {
   model: null,
   processor: null,
   isWebGPUSupported: false,
-  currentModelId: FALLBACK_MODEL_ID,
-  isIOS: isIOS()
+  currentModelId: DEFAULT_MODEL_ID,
+  isIOS: isIOS(),
 };
 
-// Initialize WebGPU with proper error handling
-async function initializeWebGPU() {
-  const gpu = (navigator as any).gpu;
-  if (!gpu) {
+function configureWasmBackend(proxy: boolean) {
+  env.allowLocalModels = false;
+  if (env.backends?.onnx?.wasm) {
+    env.backends.onnx.wasm.proxy = proxy;
+  }
+}
+
+async function loadBiRefNet(): Promise<boolean> {
+  try {
+    configureWasmBackend(true);
+    state.model = await AutoModel.from_pretrained(DEFAULT_MODEL_ID, {
+      dtype: "fp32",
+      progress_callback: (progress) => {
+        if (typeof progress === "number") {
+          console.log(`Loading BiRefNet: ${Math.round(progress * 100)}%`);
+        }
+      },
+    });
+    state.processor = await AutoProcessor.from_pretrained(DEFAULT_MODEL_ID);
+    state.currentModelId = DEFAULT_MODEL_ID;
+    return !!(state.model && state.processor);
+  } catch (error) {
+    console.error("BiRefNet initialization failed:", error);
     return false;
   }
+}
+
+async function initializeWebGPU(): Promise<boolean> {
+  const gpu = (navigator as Navigator & { gpu?: GPU }).gpu;
+  if (!gpu) return false;
 
   try {
-    // Test if we can actually create an adapter
     const adapter = await gpu.requestAdapter();
-    if (!adapter) {
-      return false;
-    }
+    if (!adapter) return false;
 
-    // Configure environment for WebGPU
-    env.allowLocalModels = false;
-    if (env.backends?.onnx?.wasm) {
-      env.backends.onnx.wasm.proxy = false;
-    }
+    configureWasmBackend(false);
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // Wait for WebAssembly initialization
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Initialize model with WebGPU
     state.model = await AutoModel.from_pretrained(WEBGPU_MODEL_ID, {
       device: "webgpu",
       config: {
-        model_type: 'modnet',
-        architectures: ['MODNet']
-      }
+        model_type: "modnet",
+        architectures: ["MODNet"],
+      },
     });
     state.processor = await AutoProcessor.from_pretrained(WEBGPU_MODEL_ID);
     state.isWebGPUSupported = true;
+    state.currentModelId = WEBGPU_MODEL_ID;
     return true;
   } catch (error) {
     console.error("WebGPU initialization failed:", error);
@@ -86,106 +104,46 @@ async function initializeWebGPU() {
   }
 }
 
-// Initialize the model based on the selected model ID
-export async function initializeModel(forceModelId?: string): Promise<boolean> {
+export async function initializeModel(forceModelId?: ModelId): Promise<boolean> {
   try {
-    // Always use RMBG-1.4 for iOS
-    if (state.isIOS) {
-      console.log('iOS detected, using RMBG-1.4 model');
-      env.allowLocalModels = false;
-      if (env.backends?.onnx?.wasm) {
-        env.backends.onnx.wasm.proxy = true;
-      }
+    const selected = forceModelId ?? DEFAULT_MODEL_ID;
 
-      state.model = await AutoModel.from_pretrained(FALLBACK_MODEL_ID, {
-        config: { model_type: 'custom' }
-      });
-
-      state.processor = await AutoProcessor.from_pretrained(FALLBACK_MODEL_ID, {
-        config: {
-          do_normalize: true,
-          do_pad: false,
-          do_rescale: true,
-          do_resize: true,
-          image_mean: [0.5, 0.5, 0.5],
-          feature_extractor_type: "ImageFeatureExtractor",
-          image_std: [1, 1, 1],
-          resample: 2,
-          rescale_factor: 0.00392156862745098,
-          size: { width: 1024, height: 1024 },
-        }
-      });
-
-      state.currentModelId = FALLBACK_MODEL_ID;
-      return true;
+    if (selected === WEBGPU_MODEL_ID && !state.isIOS) {
+      const ok = await initializeWebGPU();
+      if (ok) return true;
+      console.log("Falling back to BiRefNet (WebAssembly)…");
+      return loadBiRefNet();
     }
 
-    // Non-iOS flow remains the same
-    const selectedModelId = forceModelId || FALLBACK_MODEL_ID;
-    
-    // Try WebGPU if requested
-    if (selectedModelId === WEBGPU_MODEL_ID) {
-      const webGPUSuccess = await initializeWebGPU();
-      if (webGPUSuccess) {
-        state.currentModelId = WEBGPU_MODEL_ID;
-        return true;
-      }
-      // If WebGPU fails, fall through to fallback model without error
-    }
-    
-    // Use fallback model
-    env.allowLocalModels = false;
-    if (env.backends?.onnx?.wasm) {
-      env.backends.onnx.wasm.proxy = true;
-    }
-    
-    state.model = await AutoModel.from_pretrained(FALLBACK_MODEL_ID, {
-      progress_callback: (progress) => {
-        console.log(`Loading model: ${Math.round(progress * 100)}%`);
-      }
-    });
-    
-    state.processor = await AutoProcessor.from_pretrained(FALLBACK_MODEL_ID, {
-      revision: "main",
-      config: {
-        do_normalize: true,
-        do_pad: true,
-        do_rescale: true,
-        do_resize: true,
-        image_mean: [0.5, 0.5, 0.5],
-        feature_extractor_type: "ImageFeatureExtractor",
-        image_std: [0.5, 0.5, 0.5],
-        resample: 2,
-        rescale_factor: 0.00392156862745098,
-        size: { width: 1024, height: 1024 }
-      }
-    });
-    
-    state.currentModelId = FALLBACK_MODEL_ID;
-    
-    if (!state.model || !state.processor) {
-      throw new Error("Failed to initialize model or processor");
-    }
-    
-    state.currentModelId = selectedModelId;
-    return true;
+    return loadBiRefNet();
   } catch (error) {
     console.error("Error initializing model:", error);
-    if (forceModelId === WEBGPU_MODEL_ID) {
-      console.log("Falling back to cross-browser model...");
-      return initializeModel(FALLBACK_MODEL_ID);
-    }
-    throw new Error(error instanceof Error ? error.message : "Failed to initialize background removal model");
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to initialize background removal model",
+    );
   }
 }
 
-// Get current model info
 export function getModelInfo(): ModelInfo {
   return {
     currentModelId: state.currentModelId,
-    isWebGPUSupported: Boolean((navigator as any).gpu),
-    isIOS: state.isIOS
+    isWebGPUSupported: Boolean((navigator as Navigator & { gpu?: GPU }).gpu),
+    isIOS: state.isIOS,
   };
+}
+
+async function predictMask(pixel_values: Tensor): Promise<Tensor> {
+  if (!state.model) throw new Error("Model not loaded");
+
+  if (state.currentModelId === DEFAULT_MODEL_ID) {
+    const { output_image } = await state.model({ input_image: pixel_values });
+    return output_image[0].sigmoid().mul(255).to("uint8");
+  }
+
+  const { output } = await state.model({ input: pixel_values });
+  return output[0].mul(255).to("uint8");
 }
 
 export async function processImage(image: File): Promise<File> {
@@ -194,50 +152,38 @@ export async function processImage(image: File): Promise<File> {
   }
 
   const img = await RawImage.fromURL(URL.createObjectURL(image));
-  
-  try {
-    // Pre-process image
-    const { pixel_values } = await state.processor(img);
-    
-    // Predict alpha matte
-    const { output } = await state.model({ input: pixel_values });
 
-    // Resize mask back to original size
+  try {
+    const { pixel_values } = await state.processor(img);
+    const maskTensor = await predictMask(pixel_values);
+
     const maskData = (
-      await RawImage.fromTensor(output[0].mul(255).to("uint8")).resize(
-        img.width,
-        img.height,
-      )
+      await RawImage.fromTensor(maskTensor).resize(img.width, img.height)
     ).data;
 
-    // Create new canvas
     const canvas = document.createElement("canvas");
     canvas.width = img.width;
     canvas.height = img.height;
     const ctx = canvas.getContext("2d");
-    if(!ctx) throw new Error("Could not get 2d context");
-    
-    // Draw original image output to canvas
+    if (!ctx) throw new Error("Could not get 2d context");
+
     ctx.drawImage(img.toCanvas(), 0, 0);
 
-    // Update alpha channel
     const pixelData = ctx.getImageData(0, 0, img.width, img.height);
     for (let i = 0; i < maskData.length; ++i) {
       pixelData.data[4 * i + 3] = maskData[i];
     }
     ctx.putImageData(pixelData, 0, 0);
-    
-    // Convert canvas to blob
-    const blob = await new Promise<Blob>((resolve, reject) => 
+
+    const blob = await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(
-        (blob) => blob ? resolve(blob) : reject(new Error("Failed to create blob")), 
-        "image/png"
-      )
+        (b) => (b ? resolve(b) : reject(new Error("Failed to create blob"))),
+        "image/png",
+      ),
     );
-    
-    const [fileName] = image.name.split(".");
-    const processedFile = new File([blob], `${fileName}-bg-blasted.png`, { type: "image/png" });
-    return processedFile;
+
+    const baseName = image.name.replace(/\.[^.]+$/, "");
+    return new File([blob], `${baseName}-no-bg.png`, { type: "image/png" });
   } catch (error) {
     console.error("Error processing image:", error);
     throw new Error("Failed to process image");
@@ -245,19 +191,15 @@ export async function processImage(image: File): Promise<File> {
 }
 
 export async function processImages(images: File[]): Promise<File[]> {
-  console.log("Processing images...");
   const processedFiles: File[] = [];
-  
+
   for (const image of images) {
     try {
-      const processedFile = await processImage(image);
-      processedFiles.push(processedFile);
-      console.log("Successfully processed image", image.name);
+      processedFiles.push(await processImage(image));
     } catch (error) {
       console.error("Error processing image", image.name, error);
     }
   }
-  
-  console.log("Processing images done");
+
   return processedFiles;
 }

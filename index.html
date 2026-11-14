@@ -3,29 +3,78 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Background Image Remover</title>
-
-    <meta name="keywords" content="background image remover, remove background free, remove bg" />
-    <meta name="author" content="Addy Osmani and Transformers.js" />
-    <link rel="favicon" href="favicon.ico" />
-    <meta name="description" content="Remove image backgrounds automatically in seconds with just one click. Don't spend hours manually doing it yourself. " />
-
-    <!-- Open Graph / Facebook -->
+    <title>Free Background Remover — Remove Photo Background In Your Browser</title>
+    <meta
+      name="description"
+      content="Free automatic background removal. No upload, no sign-up. Transparent PNG download — AI runs locally with BiRefNet (MIT)."
+    />
+    <link rel="canonical" href="https://free-background-remover.web-free.site/" />
+    <link rel="alternate" hreflang="en" href="https://free-background-remover.web-free.site/" />
+    <link rel="alternate" hreflang="fr" href="https://free-background-remover.web-free.site/fr/" />
+    <link rel="alternate" hreflang="x-default" href="https://free-background-remover.web-free.site/" />
+    <link rel="icon" href="/favicon.ico" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://bg.addy.ie/" />
-    <meta property="og:title" content="Background Image Remover" />
-    <meta property="og:description" content="Remove image backgrounds automatically in seconds with just one click. Don't spend hours manually doing it yourself. " />
-    <meta property="og:image" content="https://bg.addy.ie/meta.jpg" />
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://bg.addy.ie/" />
-    <meta property="twitter:title" content="Background Image Remover" />
-    <meta property="twitter:description" content="Remove image backgrounds automatically in seconds with just one click. Don't spend hours manually doing it yourself. " />
-    <meta property="twitter:image" content="https://bg.addy.ie/meta.jpg" />
+    <meta property="og:url" content="https://free-background-remover.web-free.site/" />
+    <meta property="og:title" content="Free Background Remover" />
+    <meta
+      property="og:description"
+      content="Remove image backgrounds free in your browser. No upload required."
+    />
+    <meta property="og:image" content="https://free-background-remover.web-free.site/meta.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Free Background Remover",
+        "url": "https://free-background-remover.web-free.site/",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "In-browser background removal using BiRefNet. Images are not uploaded to a server.",
+        "browserRequirements": "Requires JavaScript. WebAssembly recommended."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Do you upload my photos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Segmentation runs locally in your browser with the MIT-licensed BiRefNet model."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the tool free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Downloads are free; the site is supported by advertising."
+            }
+          }
+        ]
+      }
+    </script>
+    <script data-cfasync="false" src="https://abscloud.org/1/cebae6672bf355ae2d1afe20a8c59c67"></script>
+    <script data-cfasync="false" src="https://bauval.org/14/9de61bf64463a87e19b908c4edb7b2c0"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <noscript>
+        <div style="max-width: 40rem; margin: 2rem auto; font-family: system-ui, sans-serif; padding: 1rem">
+          <h1>Free Background Remover</h1>
+          <p>
+            Remove photo backgrounds in your browser with no upload. Enable JavaScript to use the tool, or read
+            our <a href="/faq/">FAQ</a> and <a href="/about/">about page</a>.
+          </p>
+          <p><a href="https://web-free.site">More free tools at web-free.site</a></p>
+        </div>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

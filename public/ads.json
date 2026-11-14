@@ -1,0 +1,72 @@
+{
+  "site": "free-background-remover",
+  "website": "https://free-background-remover.web-free.site",
+  "siteId": "6199229",
+  "units": {
+    "popunder": {
+      "id": "32266124",
+      "scriptUrl": "https://abscloud.org/1/cebae6672bf355ae2d1afe20a8c59c67"
+    },
+    "native": {
+      "id": "32266125",
+      "scriptUrl": "https://bauval.org/21/0f3802a5a491021b2aa8c1dbfd1db969",
+      "containerId": "container-0f3802a5a491021b2aa8c1dbfd1db969"
+    },
+    "smartlink": {
+      "id": "32266126",
+      "url": "https://araplhn.org/4/e8764eab172932418d883ece8f05eeb9"
+    },
+    "socialBar": {
+      "id": "32266127",
+      "scriptUrl": "https://bauval.org/14/9de61bf64463a87e19b908c4edb7b2c0"
+    },
+    "banner728x90": {
+      "id": "32266128",
+      "key": "9c3da2bba002357c8125e19b378b8e89",
+      "format": "iframe",
+      "width": 728,
+      "height": 90,
+      "scriptUrl": "https://bauval.org/22/9c3da2bba002357c8125e19b378b8e89"
+    },
+    "banner468x60": {
+      "id": "32266129",
+      "key": "fa9db36b5c3ea1ca9f09790310bd8d40",
+      "format": "iframe",
+      "width": 468,
+      "height": 60,
+      "scriptUrl": "https://bauval.org/22/fa9db36b5c3ea1ca9f09790310bd8d40"
+    },
+    "banner320x50": {
+      "id": "32266130",
+      "key": "765e0e1cd20befaee6305008167bd946",
+      "format": "iframe",
+      "width": 320,
+      "height": 50,
+      "scriptUrl": "https://bauval.org/22/765e0e1cd20befaee6305008167bd946"
+    },
+    "banner300x250": {
+      "id": "32266131",
+      "key": "c545ae458c8e3ea63ca55d6ad99d0282",
+      "format": "iframe",
+      "width": 300,
+      "height": 250,
+      "scriptUrl": "https://bauval.org/22/c545ae458c8e3ea63ca55d6ad99d0282"
+    },
+    "banner160x600": {
+      "id": "32266132",
+      "key": "60dd48fbb5e94756e9317b1a4a6ad4f5",
+      "format": "iframe",
+      "width": 160,
+      "height": 600,
+      "scriptUrl": "https://bauval.org/22/60dd48fbb5e94756e9317b1a4a6ad4f5"
+    },
+    "banner160x300": {
+      "id": "32266133",
+      "key": "f91cbeb1bee724fc01670c01de17090e",
+      "format": "iframe",
+      "width": 160,
+      "height": 300,
+      "scriptUrl": "https://bauval.org/22/f91cbeb1bee724fc01670c01de17090e"
+    }
+  }
+}

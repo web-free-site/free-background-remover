@@ -1,11 +1,11 @@
 {
-  "name": "remove-background-webgpu",
+  "name": "free-background-remover",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-static-html.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -19,6 +19,8 @@
     "onnxruntime-web": "^1.20.0-dev.20240908-de7a02beef",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
+    "react-router-dom": "^6.28.0",
     "react-dropzone": "^14.2.3"
   },
   "devDependencies": {

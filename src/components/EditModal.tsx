@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { ImageFile } from "../App";
+import type { ImageFile } from "../pages/BackgroundRemover";
 
 interface EditModalProps {
   image: ImageFile;

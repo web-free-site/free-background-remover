@@ -26,7 +26,7 @@ export function FaqPage() {
       <h2 className="text-xl font-semibold mt-6 mb-2">Quick steps</h2>
       <ol className="list-decimal pl-6 space-y-2">
         <li>Open {SITE_NAME} on the home page.</li>
-        <li>Drop or paste a JPG or PNG (first use downloads the AI model — one time).</li>
+        <li>Drop or paste a JPG or PNG (first use downloads the AI model, about 473 MB — one time).</li>
         <li>Wait for processing, then download your cut-out.</li>
       </ol>
     </ContentPage>

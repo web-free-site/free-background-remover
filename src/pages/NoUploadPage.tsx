@@ -12,7 +12,7 @@ export function NoUploadPage() {
       </p>
       <p className="mt-4">
         This is ideal for passport scans, client work, or any image you do not want stored on a third-party
-        server. The trade-off is that the first visit downloads model weights (hundreds of MB) from Hugging
+        server. The trade-off is that the first visit downloads the default BiRefNet weights (about 473 MB, fp16) from Hugging
         Face; later visits use cached files.
       </p>
       <p className="mt-4">

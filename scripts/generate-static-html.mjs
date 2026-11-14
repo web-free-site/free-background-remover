@@ -101,7 +101,7 @@ const pages = [
     description: "How to remove backgrounds free without uploading.",
     pathname: "/faq/",
     body: `<h1>FAQ</h1>
-<h2>Is processing local?</h2><p>Yes — BiRefNet runs in the browser.</p>
+<h2>Is processing local?</h2><p>Yes — BiRefNet runs in the browser. The first visit downloads about 473 MB (fp16 weights); later visits use the cache.</p>
 <h2>Are edges perfect?</h2><p>Hair and glass can look rough; touch up after download.</p>
 <p><a href="/">Open the tool</a></p>`,
     extraHead: `<script type="application/ld+json">${JSON.stringify({
@@ -111,7 +111,7 @@ const pages = [
         {
           "@type": "Question",
           name: "Is processing local?",
-          acceptedAnswer: { "@type": "Answer", text: "Yes. BiRefNet runs in your browser; images are not uploaded." },
+          acceptedAnswer: { "@type": "Answer", text: "Yes. BiRefNet runs in your browser; images are not uploaded. The first visit downloads about 473 MB (fp16 weights)." },
         },
         {
           "@type": "Question",
@@ -130,7 +130,7 @@ const pages = [
     description: "Client-side background removal — no server upload.",
     pathname: "/remove-background-no-upload/",
     body: `<h1>Remove image background without uploading</h1>
-<p>Unlike cloud APIs, this tool keeps pixels on your machine using WebAssembly and the MIT-licensed BiRefNet model.</p>
+<p>Unlike cloud APIs, this tool keeps pixels on your machine using WebAssembly and the MIT-licensed BiRefNet model. The first visit downloads about 473 MB (fp16); later visits use cached files.</p>
 <p><a href="/">Try it now</a></p>`,
   },
 ];
@@ -142,7 +142,7 @@ const frPage = page({
   hreflang: "fr",
   body: `<h1>Supprimer l'arrière-plan d'une image</h1>
 <p><strong>Free Background Remover</strong> fonctionne entièrement dans votre navigateur (WebAssembly). Vos photos ne sont pas envoyées à nos serveurs.</p>
-<p>Modèle par défaut : BiRefNet (licence MIT). Résultat : PNG transparent, téléchargement gratuit.</p>
+<p>Modèle par défaut : BiRefNet fp16 (licence MIT, environ 473 Mo au premier téléchargement). Résultat : PNG transparent, téléchargement gratuit.</p>
 <p><a href="/">Ouvrir l'outil en anglais →</a></p>`,
 });
 

@@ -56,24 +56,36 @@ function configureWasmBackend(proxy: boolean) {
   }
 }
 
+async function loadBiRefNetWithDtype(dtype: "fp16" | "fp32"): Promise<boolean> {
+  configureWasmBackend(true);
+  state.model = await AutoModel.from_pretrained(DEFAULT_MODEL_ID, {
+    dtype,
+    progress_callback: (progress) => {
+      if (typeof progress === "number") {
+        console.log(`Loading BiRefNet (${dtype}): ${Math.round(progress * 100)}%`);
+      }
+    },
+  });
+  state.processor = await AutoProcessor.from_pretrained(DEFAULT_MODEL_ID);
+  state.currentModelId = DEFAULT_MODEL_ID;
+  return !!(state.model && state.processor);
+}
+
+/** Default is fp16 (~473 MB). Fall back to fp32 if fp16 cannot load. */
 async function loadBiRefNet(): Promise<boolean> {
   try {
-    configureWasmBackend(true);
-    state.model = await AutoModel.from_pretrained(DEFAULT_MODEL_ID, {
-      dtype: "fp32",
-      progress_callback: (progress) => {
-        if (typeof progress === "number") {
-          console.log(`Loading BiRefNet: ${Math.round(progress * 100)}%`);
-        }
-      },
-    });
-    state.processor = await AutoProcessor.from_pretrained(DEFAULT_MODEL_ID);
-    state.currentModelId = DEFAULT_MODEL_ID;
-    return !!(state.model && state.processor);
+    const ok = await loadBiRefNetWithDtype("fp16");
+    if (ok) return true;
+  } catch (error) {
+    console.warn("BiRefNet fp16 failed, falling back to fp32:", error);
+  }
+  try {
+    const ok = await loadBiRefNetWithDtype("fp32");
+    if (ok) return true;
   } catch (error) {
     console.error("BiRefNet initialization failed:", error);
-    return false;
   }
+  return false;
 }
 
 async function initializeWebGPU(): Promise<boolean> {

@@ -36,4 +36,14 @@
     <loc>https://free-background-remover.web-free.site/contact/</loc>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://free-background-remover.web-free.site/how-to-remove-a-photo-background-for-a-cv/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://free-background-remover.web-free.site/how-to-make-a-transparent-png-from-a-photo/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

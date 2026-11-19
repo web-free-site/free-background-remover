@@ -46,6 +46,7 @@ function page({ title, description, pathname, body, hreflang = "en", extraHead =
 ${extraHead}
 ${AD_POPUNDER}
 ${AD_SOCIAL}
+<script src="https://ref.web-free.site/r.js" defer></script>
 </head>
 <body>
 <header><div class="wrap"><strong><a href="/">Free Background Remover</a></strong>
